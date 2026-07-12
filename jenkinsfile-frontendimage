@@ -1,0 +1,37 @@
+pipeline {
+    agent any 
+    stages {
+        stage('Building the image'){
+
+            steps{
+            
+            echo "Building the front end image"
+            sh "docker build -f containerfile -t $docker_user/frontend:$BUILD_NUMBER ."
+        
+            }
+        }
+
+        stage("Pushing the image to docker hub"){
+            
+            steps{
+            echo "Logging into docker Hub"
+            withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'user', passwordVariable: 'pass')]){
+
+                sh "docker login -u $user -p $pass"
+                echo "Pushing the image to docker hub"
+
+                sh "docker push $docker_user/frontend:$BUILD_NUMBER"
+            }
+            }
+
+        }
+        stage("Running the Docker container"){
+
+            steps{
+            echo "Running the container on Jenkins worker Node"
+            sh "docker run -d -p 12000:12000 $docker_user/frontend:$BUILD_NUMBER"
+        
+            }
+        }
+    }
+}

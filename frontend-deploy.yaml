@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deploy
+  labels:
+    app: jenkins
+
+spec:
+  replicas : 1
+  selector:
+    matchLabels:
+      app: frontend-pod
+  
+  template:
+    metadata:
+      labels:
+        app: frontend-pod
+    spec:
+      containers:
+        - name: frontend
+          image: shaiksuhaildocker/frontend:12
+          imagePullPolicy: Always
+          env:
+            - name: APPPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: appport
+            - name: SESSIONNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: sessionname
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu : "100m"
+            limits:
+              memory: "200Mi"
+              cpu: "150m"
+          ports:
+            - name: frontend
+              containerPort: 15000
+      
