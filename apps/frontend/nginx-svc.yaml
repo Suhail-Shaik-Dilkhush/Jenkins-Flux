@@ -4,6 +4,7 @@ metadata:
   name: nginx-svc
   labels:
     app: nginx
+  namespace: default
 spec:
   type: NodePort
   selector:
